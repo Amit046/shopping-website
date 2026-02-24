@@ -329,8 +329,12 @@ def seed_database():
     print("✅ Database seeded! Admin: admin@shop.com / admin123")
 
 
-if __name__ == '__main__':
+def create_app():
     with app.app_context():
         db.create_all()
         seed_database()
+    return app
+
+if __name__ == '__main__':
+    create_app()
     app.run(debug=True)
