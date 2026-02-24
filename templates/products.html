@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Products – ShopFlask{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Breadcrumb + Heading -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0">
+                {% if current_category %}{{ current_category.name }}
+                {% elif search %}Results for "{{ search }}"
+                {% else %}All Products{% endif %}
+            </h2>
+            <small class="text-muted">{{ products|length }} product(s) found</small>
+        </div>
+        <!-- Category Filter Pills -->
+        <div class="d-none d-md-flex gap-2">
+            <a href="{{ url_for('products') }}" class="btn btn-sm {% if not current_category %}btn-dark{% else %}btn-outline-dark{% endif %}">All</a>
+            {% for cat in all_categories %}
+            <a href="{{ url_for('products', category=cat.slug) }}" class="btn btn-sm {% if current_category and current_category.id == cat.id %}btn-dark{% else %}btn-outline-dark{% endif %}">{{ cat.name }}</a>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if products %}
+    <div class="row g-4">
+        {% for product in products %}
+        <div class="col-sm-6 col-md-4 col-lg-3">
+            <div class="card product-card h-100 border-0 shadow-sm">
+                <div class="product-img-wrap">
+                    <img src="{{ product.image_url or 'https://via.placeholder.com/300x200?text=Product' }}"
+                         class="card-img-top product-img" alt="{{ product.name }}">
+                    {% if product.stock == 0 %}
+                    <span class="badge bg-danger position-absolute top-0 end-0 m-2">Out of Stock</span>
+                    {% endif %}
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <span class="badge bg-secondary mb-2 align-self-start">{{ product.category.name }}</span>
+                    <h6 class="card-title fw-semibold">{{ product.name }}</h6>
+                    <p class="text-muted small flex-grow-1">{{ product.description[:60] }}{% if product.description and product.description|length > 60 %}...{% endif %}</p>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-success fw-bold fs-5">${{ "%.2f"|format(product.price) }}</span>
+                        <small class="text-muted">{{ product.stock }} left</small>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn btn-outline-dark btn-sm flex-grow-1">View Details</a>
+                        {% if current_user.is_authenticated and product.stock > 0 %}
+                        <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="POST">
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="btn btn-dark btn-sm" title="Add to Cart"><i class="bi bi-cart-plus"></i></button>
+                        </form>
+                        {% elif not current_user.is_authenticated %}
+                        <a href="{{ url_for('login') }}" class="btn btn-dark btn-sm" title="Login to add"><i class="bi bi-cart-plus"></i></a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-search display-1 text-muted"></i>
+        <p class="mt-3 text-muted fs-5">No products found.</p>
+        <a href="{{ url_for('products') }}" class="btn btn-dark">Browse All</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

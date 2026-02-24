@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Checkout – ShopFlask{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="fw-bold mb-4"><i class="bi bi-credit-card me-2"></i>Checkout</h2>
+    <div class="row g-4">
+        <!-- Shipping Form -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">Shipping Details</h5>
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-3">
+                            {{ form.address.label(class="form-label fw-semibold") }}
+                            {{ form.address(class="form-control" + (" is-invalid" if form.address.errors else ""), rows=4, placeholder="Enter your full shipping address...") }}
+                            {% for e in form.address.errors %}<div class="invalid-feedback">{{ e }}</div>{% endfor %}
+                        </div>
+                        <div class="alert alert-info small"><i class="bi bi-info-circle me-1"></i>This is a demo store. No real payment is processed.</div>
+                        {{ form.submit(class="btn btn-dark btn-lg w-100") }}
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3">Order Summary</h5>
+                    {% for item in cart.items %}
+                    <div class="d-flex justify-content-between mb-2 small">
+                        <div>
+                            <span class="fw-semibold">{{ item.product.name }}</span>
+                            <span class="text-muted"> × {{ item.quantity }}</span>
+                        </div>
+                        <span>${{ "%.2f"|format(item.product.price * item.quantity) }}</span>
+                    </div>
+                    {% endfor %}
+                    <hr>
+                    <div class="d-flex justify-content-between fw-bold fs-5">
+                        <span>Total</span>
+                        <span class="text-success">${{ "%.2f"|format(cart.total) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
